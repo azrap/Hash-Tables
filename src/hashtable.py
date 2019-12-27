@@ -1,21 +1,24 @@
 # '''
 # Linked List hash table key/value pair
 # '''
+
+
 class LinkedPair:
     def __init__(self, key, value):
         self.key = key
         self.value = value
         self.next = None
 
+
 class HashTable:
     '''
     A hash table that with `capacity` buckets
     that accepts string keys
     '''
+
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
-
 
     def _hash(self, key):
         '''
@@ -23,8 +26,8 @@ class HashTable:
 
         You may replace the Python hash with DJB2 as a stretch goal.
         '''
-        return hash(key)
 
+        return hash(key)
 
     def _hash_djb2(self, key):
         '''
@@ -32,8 +35,12 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash_value = 5381
+        # bit-shift and sum value for each character
+        for char in key:
+            hash_value = ((hash_value << 5)+hash_value) + char
 
+        return hash_value
 
     def _hash_mod(self, key):
         '''
@@ -41,7 +48,6 @@ class HashTable:
         within the storage capacity of the hash table.
         '''
         return self._hash(key) % self.capacity
-
 
     def insert(self, key, value):
         '''
@@ -51,9 +57,20 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        # step1 _hash_mod the key to get an integer between 0 and self.capacity
+        index = self._hash_mod(key)
 
+        # step 2: check for collisisions
+        if self.storage[index]:
+            print(
+                f"Error: there's already a key, value present at index {index} ")
+            return
 
+        self.storage[index] = LinkedPair(key, value)
+
+        print(self.storage[index].key)
+
+        return self
 
     def remove(self, key):
         '''
@@ -63,8 +80,15 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        index = self._hash_mod(key)
 
+        # 2 we check to see if anything is there in self.storage at that index
+
+        if self.storage[index] and self.storage[index].key == key:
+            self.storage[index] = None
+            return "success"
+
+        return "warning: the key was not found in the hashTable"
 
     def retrieve(self, key):
         '''
@@ -74,22 +98,30 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        # 1 we hash the key to find the index at which it ought to be stored
+        index = self._hash_mod(key)
 
+        # 2 we check to see if anything is there in self.storage at that index
+
+        if self.storage[index] and self.storage[index].key == key:
+            return self.storage[index].value
+
+        return None
+
+        # 3 if something is there, we loop down the linkedlist and return the key/value pair if it is stored there
+        # 4 if it's not stored anywhere return None
 
     def resize(self):
-        '''
-        Doubles the capacity of the hash table and
-        rehash all key/value pairs.
-
-        Fill this in.
-        '''
         pass
 
+
+newHT = HashTable(8)
+key = b"hello"
+print(newHT._hash_djb2(key))
 
 
 if __name__ == "__main__":
-    ht = HashTable(2)
+    ht = HashTable(10)
 
     ht.insert("line_1", "Tiny hash table")
     ht.insert("line_2", "Filled beyond capacity")

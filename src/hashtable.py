@@ -115,11 +115,6 @@ class HashTable:
         pass
 
 
-newHT = HashTable(8)
-key = b"hello"
-print(newHT._hash_djb2(key))
-
-
 if __name__ == "__main__":
     ht = HashTable(10)
 

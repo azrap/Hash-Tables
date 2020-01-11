@@ -63,8 +63,7 @@ class HashTable:
         # step 2: check for collisisions
         if self.storage[index]:
             print(
-                f"Error: there's already a key, value present at index {index} ")
-            return
+                f"WARNING: there's already a key, value present at index {index} ")
 
         self.storage[index] = LinkedPair(key, value)
 

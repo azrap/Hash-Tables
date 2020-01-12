@@ -102,16 +102,21 @@ class HashTable:
 
         # 2 we check to see if anything is there in self.storage at that index
 
-        if self.storage[index] and self.storage[index].key == key:
-            return self.storage[index].value
-
-        return None
+        return self.storage[index].value
 
         # 3 if something is there, we loop down the linkedlist and return the key/value pair if it is stored there
         # 4 if it's not stored anywhere return None
 
     def resize(self):
-        pass
+        self.capacity *= 2
+        new_storage = [None]*self.capacity
+
+        for item in self.storage:
+            if item is not None:
+                new_index = self._hash_mod(item.key)
+                new_storage[new_index] = LinkedPair(item.key, item.value)
+
+        self.storage = new_storage
 
 
 if __name__ == "__main__":

@@ -85,9 +85,18 @@ class HashTable:
         # step 2: store the linked pair
         if self.storage[index]:
             # if collision, store the lp at the tail of the existing ll
-            linked_list = self.storage[index]
-            linked_list.tail.next = linked_pair
-            linked_list.tail = linked_pair
+            if self.retrieve(key):
+                linked_list = self.storage[index]
+                current = linked_list.head
+                while current:
+                    if current.key == key:
+                        current.value = value
+                    current = current.next
+
+            else:
+                linked_list = self.storage[index]
+                linked_list.tail.next = linked_pair
+                linked_list.tail = linked_pair
 
         else:
             # else store the lp in a new ll at the index
@@ -103,58 +112,61 @@ class HashTable:
 
         Fill this in.
         '''
-        linked_pair = self.retrieve(key)
+        linked_pair_value = self.retrieve(key)
         index = self._hash_mod(key)
         linked_list = self.storage[index]
 
-        if linked_pair:
+        if linked_pair_value:
+            current = linked_list.head
+            prev = current
+
             # if there's only one linked_pair in the list
-            if linked_pair == linked_list.head and linked_pair == linked_list.tail:
-                # set the storage to None to remove the lp
+            if current == linked_list.head and current == linked_list.tail:
+                # set the storage to None to remove the list
                 self.storage[index] = None
                 return True
-            # else if linked_pair is the head
-            elif linked_pair == linked_list.head:
-                linked_list.head = linked_pair.next
-                linked_pair.next = None
+            # else if the head has the key we want to remove:
+            elif current.key == key:
+                linked_list.head = current.next
+                current.next = None
                 return True
             else:
-                current = linked_list.head
-                prev = current
+                print('current value', current.value)
+                print('prev value', prev.value)
                 while current:
                     if current.key == key:
                         if linked_list.tail == current:
                             linked_list.tail = prev
+                        prev.next = current.next
+                        current.next = None
+                        return True
+                    prev = current
 
+                    current = current.next
+        return "bleep"
 
+        # 2 we check to see if anything is there in self.storage at that index
 
-
-         return "bleep"
-
-            # 2 we check to see if anything is there in self.storage at that index
-
-            # if self.storage[index]:
-            #     linked_list = self.storage[index]
-            #     # if there is only one linked pair in the list
-            #     if linked_list.head == linked_list.tail:
-            #         if linked_list.head.key == key:
-            #             self.storage[index] = None
-            #             return True
-            #         else:
-            #             return False
-            #     # if there is more than one linked pair in the list
-            #     current = linked_list.head
-            #     prev = current
-            #     while current:
-            #         if current.key == key:
-            #             if current.next == linked_list.tail:
-            #                 linked_list.head = linked_list.tail
-            #                 current.next = None
-            #                 return f"deleted ({current.key}, {current.value}) from storage"
-            #         prev = current
-            #         current = current.next
-
-       
+        # if self.storage[index]:
+        #     linked_list = self.storage[index]
+        #     # if there is only one linked pair in the list
+        #     if linked_list.head == linked_list.tail:
+        #         if linked_list.head.key == key:
+        #             self.storage[index] = None
+        #             return True
+        #         else:
+        #             return False
+        #     # if there is more than one linked pair in the list
+        #     current = linked_list.head
+        #     prev = current
+        #     while current:
+        #         if current.key == key:
+        #             if current.next == linked_list.tail:
+        #                 linked_list.head = linked_list.tail
+        #                 current.next = None
+        #                 return f"deleted ({current.key}, {current.value}) from storage"
+        #         prev = current
+        #         current = current.next
 
     def retrieve(self, key):
         '''
@@ -175,7 +187,7 @@ class HashTable:
             current = linked_list.head
             while current:
                 if current.key == key:
-                    return current
+                    return current.value
                 current = current.next
 
         return None

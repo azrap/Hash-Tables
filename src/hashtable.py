@@ -10,6 +10,12 @@ class LinkedPair:
         self.next = None
 
 
+class LinkedList:
+    def __init__(self, LinkedPair=None):
+        self.head = LinkedPair
+        self.tail = LinkedPair
+
+
 class HashTable:
     '''
     A hash table that with `capacity` buckets
@@ -56,18 +62,36 @@ class HashTable:
         Hash collisions should be handled with Linked List Chaining.
 
         Fill this in.
+
         '''
-        # step1 _hash_mod the key to get an integer between 0 and self.capacity
+
+        # # step 0, check to see if there are any cells that are empty
+        # resize = True
+        # for item in self.storage:
+        #     # break the loop if there's an empty cell
+        #     if item is None:
+        #         resize = False
+        #         break
+        # # if there aren't any empty cells, resize:
+        # if resize is True:
+        #     self.resize()
+
+        # step 1, _hash_mod the key to get an integer between 0 and self.capacity
         index = self._hash_mod(key)
 
-        # step 2: check for collisisions
+        # link the key, value together for storage:
+        linked_pair = LinkedPair(key, value)
+
+        # step 2: store the linked pair
         if self.storage[index]:
-            print(
-                f"WARNING: there's already a key, value present at index {index} ")
+            # if collision, store the lp at the tail of the existing ll
+            linked_list = self.storage[index]
+            linked_list.tail.next = linked_pair
+            linked_list.tail = linked_pair
 
-        self.storage[index] = LinkedPair(key, value)
-
-        print(self.storage[index].key)
+        else:
+            # else store the lp in a new ll at the index
+            self.storage[index] = LinkedList(linked_pair)
 
         return self
 
@@ -79,15 +103,58 @@ class HashTable:
 
         Fill this in.
         '''
+        linked_pair = self.retrieve(key)
         index = self._hash_mod(key)
+        linked_list = self.storage[index]
 
-        # 2 we check to see if anything is there in self.storage at that index
+        if linked_pair:
+            # if there's only one linked_pair in the list
+            if linked_pair == linked_list.head and linked_pair == linked_list.tail:
+                # set the storage to None to remove the lp
+                self.storage[index] = None
+                return True
+            # else if linked_pair is the head
+            elif linked_pair == linked_list.head:
+                linked_list.head = linked_pair.next
+                linked_pair.next = None
+                return True
+            else:
+                current = linked_list.head
+                prev = current
+                while current:
+                    if current.key == key:
+                        if linked_list.tail == current:
+                            linked_list.tail = prev
 
-        if self.storage[index] and self.storage[index].key == key:
-            self.storage[index] = None
-            return "success"
 
-        return "warning: the key was not found in the hashTable"
+
+
+         return "bleep"
+
+            # 2 we check to see if anything is there in self.storage at that index
+
+            # if self.storage[index]:
+            #     linked_list = self.storage[index]
+            #     # if there is only one linked pair in the list
+            #     if linked_list.head == linked_list.tail:
+            #         if linked_list.head.key == key:
+            #             self.storage[index] = None
+            #             return True
+            #         else:
+            #             return False
+            #     # if there is more than one linked pair in the list
+            #     current = linked_list.head
+            #     prev = current
+            #     while current:
+            #         if current.key == key:
+            #             if current.next == linked_list.tail:
+            #                 linked_list.head = linked_list.tail
+            #                 current.next = None
+            #                 return f"deleted ({current.key}, {current.value}) from storage"
+            #         prev = current
+            #         current = current.next
+
+       
 
     def retrieve(self, key):
         '''
@@ -102,7 +169,16 @@ class HashTable:
 
         # 2 we check to see if anything is there in self.storage at that index
 
-        return self.storage[index].value
+        linked_list = self.storage[index]
+
+        if linked_list:
+            current = linked_list.head
+            while current:
+                if current.key == key:
+                    return current
+                current = current.next
+
+        return None
 
         # 3 if something is there, we loop down the linkedlist and return the key/value pair if it is stored there
         # 4 if it's not stored anywhere return None
@@ -120,7 +196,7 @@ class HashTable:
 
 
 if __name__ == "__main__":
-    ht = HashTable(10)
+    ht = HashTable(3)
 
     ht.insert("line_1", "Tiny hash table")
     ht.insert("line_2", "Filled beyond capacity")
@@ -133,16 +209,19 @@ if __name__ == "__main__":
     print(ht.retrieve("line_2"))
     print(ht.retrieve("line_3"))
 
+    # print(ht.remove("line_3"))
+    # print(ht.retrieve("line_3"))
+
     # Test resizing
-    old_capacity = len(ht.storage)
-    ht.resize()
-    new_capacity = len(ht.storage)
+    # old_capacity = len(ht.storage)
+    # ht.resize()
+    # new_capacity = len(ht.storage)
 
-    print(f"\nResized from {old_capacity} to {new_capacity}.\n")
+    # print(f"\nResized from {old_capacity} to {new_capacity}.\n")
 
-    # Test if data intact after resizing
-    print(ht.retrieve("line_1"))
-    print(ht.retrieve("line_2"))
-    print(ht.retrieve("line_3"))
+    # # Test if data intact after resizing
+    # print(ht.retrieve("line_1"))
+    # print(ht.retrieve("line_2"))
+    # print(ht.retrieve("line_3"))
 
     print("")

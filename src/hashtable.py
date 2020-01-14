@@ -42,9 +42,10 @@ class HashTable:
         OPTIONAL STRETCH: Research and implement DJB2
         '''
         hash_value = 5381
-        # bit-shift and sum value for each character
+
         for char in key:
-            hash_value = ((hash_value << 5)+hash_value) + char
+            # bit-shift and sum Unicode value for each character
+            hash_value = ((hash_value << 5)+hash_value) + ord(char)
 
         return hash_value
 
@@ -53,7 +54,7 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         within the storage capacity of the hash table.
         '''
-        return self._hash(key) % self.capacity
+        return self._hash_djb2(key) % self.capacity
 
     def insert(self, key, value):
         '''
@@ -65,18 +66,6 @@ class HashTable:
 
         '''
 
-        # # step 0, check to see if there are any cells that are empty
-        # resize = True
-        # for item in self.storage:
-        #     # break the loop if there's an empty cell
-        #     if item is None:
-        #         resize = False
-        #         break
-        # # if there aren't any empty cells, resize:
-        # if resize is True:
-        #     self.resize()
-
-        # step 1, _hash_mod the key to get an integer between 0 and self.capacity
         index = self._hash_mod(key)
 
         # link the key, value together for storage:
@@ -85,12 +74,20 @@ class HashTable:
         # step 2: store the linked pair
         if self.storage[index]:
             # if collision, store the lp at the tail of the existing ll
+
+            # if the key, value pair already exists:
             if self.retrieve(key):
+                # get the linked list where it it is stored
                 linked_list = self.storage[index]
                 current = linked_list.head
+                # go through each linked pair
                 while current:
+                    # if you find the key:
                     if current.key == key:
+                        # replace the value and return the list
                         current.value = value
+                        return self
+                    # if not, keep moving down the list
                     current = current.next
 
             else:
@@ -119,8 +116,7 @@ class HashTable:
         if linked_pair_value:
             current = linked_list.head
             prev = current
-
-            # if there's only one linked_pair in the list
+            # if there's only one linked_pair in the list, head will equal tail
             if current == linked_list.head and current == linked_list.tail:
                 # set the storage to None to remove the list
                 self.storage[index] = None
@@ -131,8 +127,6 @@ class HashTable:
                 current.next = None
                 return True
             else:
-                print('current value', current.value)
-                print('prev value', prev.value)
                 while current:
                     if current.key == key:
                         if linked_list.tail == current:
@@ -143,30 +137,8 @@ class HashTable:
                     prev = current
 
                     current = current.next
+
         return "bleep"
-
-        # 2 we check to see if anything is there in self.storage at that index
-
-        # if self.storage[index]:
-        #     linked_list = self.storage[index]
-        #     # if there is only one linked pair in the list
-        #     if linked_list.head == linked_list.tail:
-        #         if linked_list.head.key == key:
-        #             self.storage[index] = None
-        #             return True
-        #         else:
-        #             return False
-        #     # if there is more than one linked pair in the list
-        #     current = linked_list.head
-        #     prev = current
-        #     while current:
-        #         if current.key == key:
-        #             if current.next == linked_list.tail:
-        #                 linked_list.head = linked_list.tail
-        #                 current.next = None
-        #                 return f"deleted ({current.key}, {current.value}) from storage"
-        #         prev = current
-        #         current = current.next
 
     def retrieve(self, key):
         '''
@@ -199,12 +171,41 @@ class HashTable:
         self.capacity *= 2
         new_storage = [None]*self.capacity
 
-        for item in self.storage:
-            if item is not None:
-                new_index = self._hash_mod(item.key)
-                new_storage[new_index] = LinkedPair(item.key, item.value)
+        for list in self.storage:
+
+            if list is not None:
+
+                current = list.head
+
+                # while there are linked_pairs in linked_list
+                while current:
+
+                    # get the new index for each item
+                    new_index = self._hash_mod(current.key)
+
+                    # get the new linked pair
+                    new_pair = LinkedPair(current.key, current.value)
+
+                    # if there's a collision at that index
+                    if new_storage[new_index]:
+
+                        # grab the linked list at that index
+                        new_list = new_storage[new_index]
+
+                        # add the linked pair to the end of that list
+                        new_list.tail.next = new_pair
+                        new_list.tail = new_pair
+
+                    # if no collisions at new index,
+                    else:
+                         # make a new Ll and store the new pair
+                        new_storage[new_index] = LinkedList(new_pair)
+
+                    current = current.next
 
         self.storage = new_storage
+
+        return self
 
 
 if __name__ == "__main__":

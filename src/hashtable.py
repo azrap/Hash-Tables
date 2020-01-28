@@ -171,6 +171,7 @@ class HashTable:
         self.capacity *= 2
         new_storage = [None]*self.capacity
 
+        # take all the linked pairs in old storage and transfer them to the new storage
         for list in self.storage:
 
             if list is not None:
@@ -186,7 +187,7 @@ class HashTable:
                     # get the new linked pair
                     new_pair = LinkedPair(current.key, current.value)
 
-                    # if there's a collision at that index
+                    # if there's a collision at the new_index
                     if new_storage[new_index]:
 
                         # grab the linked list at that index
@@ -198,7 +199,7 @@ class HashTable:
 
                     # if no collisions at new index,
                     else:
-                         # make a new Ll and store the new pair
+                         # make a new ll and store the new pair
                         new_storage[new_index] = LinkedList(new_pair)
 
                     current = current.next
